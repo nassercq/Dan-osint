@@ -6,12 +6,12 @@ import random
 from flask import Flask
 from threading import Thread
 
-# --- كود الإبقاء حياً (KEEP ALIVE) لإبقاء البوت 24 ساعة ---
+# --- كود الـ Keep Alive (لإبقاء البوت شغال 24 ساعة) ---
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "DEEP SEARCH SYSTEM IS ONLINE ✅"
+    return "NIGHTRLOT SYSTEM IS ONLINE ✅"
 
 def run():
     app.run(host='0.0.0.0', port=8080)
@@ -20,11 +20,10 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-# تشغيل خادم الويب الصغير في الخلفية
-keep_alive()
-# ---------------------------------------------------------
+keep_alive() # تشغيل السيرفر المصغر
+# --------------------------------------------------
 
-    TOKEN = "8617957489:AAEXBY36zmhieVpBmHk1TanH0_uxcnkOT4c"
+TOKEN = "8617957489:AAEXBY36zmhieVpBmHk1TanH0_uxcnkOT4c"
 bot = telebot.TeleBot(TOKEN)
 
 user_states = {}
@@ -54,11 +53,11 @@ def news_footer(chat_id):
 @bot.message_handler(commands=['start'])
 def welcome(message):
     loading = bot.send_message(message.chat.id, "📡 Establishing encrypted connection...")
-    time.sleep(0.4)
+    time.sleep(0.5)
     bot.edit_message_text("🔐 Decrypting access protocol...", message.chat.id, loading.message_id)
-    time.sleep(0.4)
+    time.sleep(0.5)
     bot.delete_message(message.chat.id, loading.message_id)
-    
+
     welcome_text = (
         "💠 **WELCOME TO DEEP SEARCH SYSTEM**\n\n"
         "━━━━━━━━━━━━━━\n\n"
@@ -73,7 +72,13 @@ def welcome(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if call.data == "alert":
-        bot.send_message(call.message.chat.id, "⚠️ Admin Notification\n\nThis unit requires a Premium subscription\n\nTo activate, contact the developer :\n💠 @nightrlot")
+        alert_text = (
+            "⚠️ Admin Notification\n\n"
+            "This unit requires a Premium subscription\n\n"
+            "To activate, contact the developer :\n"
+            "💠 @nightrlot"
+        )
+        bot.send_message(call.message.chat.id, alert_text)
 
     elif call.data == "osint_menu":
         markup = types.InlineKeyboardMarkup(row_width=2)
@@ -122,7 +127,7 @@ def handle_all_inputs(message):
     state = user_states[message.chat.id]
     text = message.text.strip()
     chat_id = message.chat.id
-    
+
     if state == "waiting_osint":
         if len(text) > 11:
             bot.reply_to(message, "❌ Error : Username too long.")
@@ -160,7 +165,7 @@ def handle_all_inputs(message):
                     name = res.get("name", "Unknown")
                     number = res.get("number", "Private")
                     res_text += f"{i} ➔ {name} | `{number}`\n\n"
-                
+
                 if len(res_text) > 4000:
                     for x in range(0, len(res_text), 4000):
                         bot.send_message(chat_id, res_text[x:x+4000], parse_mode="Markdown")
@@ -172,10 +177,4 @@ def handle_all_inputs(message):
 
     del user_states[chat_id]
 
-# تشغيل البوت مع خاصية إعادة التشغيل عند الخطأ (Restart on error)
-while True:
-    try:
-        bot.polling(none_stop=True, timeout=60)
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        time.sleep(5)
+bot.polling(none_stop=True)
